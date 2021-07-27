@@ -1,0 +1,73 @@
+plugins {
+	id 'java'
+	id 'org.barfuin.gradle.taskinfo' version '1.0.5'
+}
+
+repositories {
+	mavenCentral()
+	// mavenLocal()
+}
+
+dependencies {
+	// implementation 'org.apache.commons:commons-lang3:3.3.2'
+	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.3.2'
+
+	// testImplementation 'junit:junit:4.12'
+	testImplementation group: 'junit', name: 'junit', version: '4.12' 
+}
+
+// sourceSets {
+// 	main.java.srcDir "src/main"
+// 	test.java.srcDir "src/test"
+// }
+
+sourceSets {
+	main {
+		java {
+			srcDir "src/main"
+		}
+	}
+
+	test {
+		java {
+			srcDir "src/test"
+		}
+	}
+}
+
+// jar {
+// 	from configurations.compile.collect { entry -> zipTree(entry) }
+// 	manifest.attributes "Main-Class": "com.example.gradle.Main"
+// }
+
+jar {
+	from configurations.compileClasspath.collect { entry -> zipTree(entry) }
+	manifest {
+		attributes "Main-Class": "com.example.gradle.Main" 
+	}
+}
+
+task sayHello() {
+	group='Helpful tasks'
+	description='a handy Task'
+	print 'sayHello: inside configuration phase'
+	doFirst {
+		println 'sayHello: do first ....'
+	}
+
+	doLast {
+		println 'sayHello: Do last'
+		println "sayHello: $project"
+	}
+}
+
+task run(type: JavaExec, dependsOn: classes) {
+	main 'com.example.gradle.Main'
+	classpath sourceSets.main.runtimeClasspath
+	args 'Hello World again!!'
+}
+
+task runJar(type: Exec, dependsOn: jar) {
+	executable 'java'
+	args '-jar', "$jar.archivePath", 'Hello World'
+}
